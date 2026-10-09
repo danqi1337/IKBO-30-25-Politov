@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 
-from helpers import OWNER, make_shell
+from helpers import OWNER, ShellCase, make_shell
 from emulator.vfs import load_directory
 
 
@@ -14,13 +14,13 @@ def run(shell, line):
     return result.output, result.is_error
 
 
-class ChownTest(unittest.TestCase):
+class ChownTest(ShellCase):
     """Проверки команды chown."""
 
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
-        self.vfs = self.shell.vfs
+    @property
+    def vfs(self):
+        """VFS оболочки теста."""
+        return self.shell.vfs
 
     def owner(self, path):
         """Возвращает владельца узла path."""
@@ -69,12 +69,8 @@ class ChownTest(unittest.TestCase):
         self.assertEqual(self.owner("readme.txt"), OWNER)
 
 
-class RmdirTest(unittest.TestCase):
+class RmdirTest(ShellCase):
     """Проверки команды rmdir."""
-
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
 
     def exists(self, path):
         """Проверяет наличие пути в VFS."""

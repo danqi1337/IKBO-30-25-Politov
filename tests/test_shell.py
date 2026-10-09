@@ -1,6 +1,7 @@
 """Тесты ядра оболочки (этап 1)."""
 
 import unittest
+from functools import cached_property
 
 from emulator.shell import Shell
 from emulator.sysinfo import window_title
@@ -9,9 +10,10 @@ from emulator.sysinfo import window_title
 class ShellTest(unittest.TestCase):
     """Проверки выполнения команд-заглушек и ошибок."""
 
-    def setUp(self):
-        """Создаёт оболочку."""
-        self.shell = Shell()
+    @cached_property
+    def shell(self):
+        """Оболочка с VFS по умолчанию."""
+        return Shell()
 
     def test_quoted_argument_is_one_path(self):
         """Аргумент в кавычках с пробелом — один путь."""

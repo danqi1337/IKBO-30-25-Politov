@@ -2,9 +2,10 @@
 
 import csv
 import os
-import tempfile
 import unittest
+from functools import cached_property
 
+from helpers import TempDirCase
 from emulator.logger import FIELDS, CsvLogger, LogError
 from emulator.shell import Shell
 
@@ -15,14 +16,13 @@ def read_rows(path):
         return list(csv.reader(handle))
 
 
-class LoggerTest(unittest.TestCase):
+class LoggerTest(TempDirCase):
     """Проверки журнала событий."""
 
-    def setUp(self):
-        """Создаёт временный каталог."""
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.path = os.path.join(self.tmp.name, "log.csv")
+    @cached_property
+    def path(self):
+        """Путь к журналу во временном каталоге."""
+        return os.path.join(self.tmp.name, "log.csv")
 
     def test_header_written_once(self):
         """Заголовок пишется только в новый файл."""

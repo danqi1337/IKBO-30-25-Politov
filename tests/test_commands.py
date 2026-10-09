@@ -2,7 +2,7 @@
 
 import unittest
 
-from helpers import make_shell
+from helpers import ShellCase, make_shell
 
 
 def run(shell, line):
@@ -11,12 +11,8 @@ def run(shell, line):
     return result.output, result.is_error
 
 
-class LsTest(unittest.TestCase):
+class LsTest(ShellCase):
     """Проверки команды ls."""
-
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
 
     def test_root_listing_sorted(self):
         """Имена отсортированы."""
@@ -66,12 +62,8 @@ class LsTest(unittest.TestCase):
         self.assertTrue(run(self.shell, 'ls ""')[1])
 
 
-class CdTest(unittest.TestCase):
+class CdTest(ShellCase):
     """Проверки команды cd."""
-
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
 
     def test_cd_changes_prompt(self):
         """cd меняет каталог и приглашение."""
@@ -101,12 +93,8 @@ class CdTest(unittest.TestCase):
         self.assertEqual(self.shell.vfs.pwd(), "/")
 
 
-class TailTest(unittest.TestCase):
+class TailTest(ShellCase):
     """Проверки команды tail."""
-
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
 
     def test_default_ten_lines(self):
         """По умолчанию выводятся последние 10 строк."""
@@ -150,12 +138,8 @@ class TailTest(unittest.TestCase):
         self.assertIn("invalid option", run(self.shell, "tail -z f")[0])
 
 
-class TacTest(unittest.TestCase):
+class TacTest(ShellCase):
     """Проверки команды tac."""
-
-    def setUp(self):
-        """Создаёт оболочку с тестовой VFS."""
-        self.shell = make_shell()
 
     def test_reverses_lines(self):
         """Строки выводятся в обратном порядке."""

@@ -3,8 +3,10 @@
 import os
 import subprocess
 import sys
-import tempfile
 import unittest
+from functools import cached_property
+
+from helpers import TempDirCase
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
@@ -21,14 +23,13 @@ def run_emulator(*args, stdin=""):
     )
 
 
-class CliTest(unittest.TestCase):
+class CliTest(TempDirCase):
     """Проверки параметров командной строки."""
 
-    def setUp(self):
-        """Создаёт временный каталог для журнала."""
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.log = os.path.join(self.tmp.name, "log.csv")
+    @cached_property
+    def log(self):
+        """Путь к журналу во временном каталоге."""
+        return os.path.join(self.tmp.name, "log.csv")
 
     def test_parameters_are_printed(self):
         """При запуске выводятся все заданные параметры."""

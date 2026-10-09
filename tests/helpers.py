@@ -1,4 +1,8 @@
-"""Вспомогательные функции для тестов."""
+"""Вспомогательные функции и базовые классы для тестов."""
+
+import tempfile
+import unittest
+from functools import cached_property
 
 from emulator.shell import Shell
 from emulator.vfs import Vfs
@@ -26,3 +30,23 @@ def make_shell(tree=None):
     shell = Shell(vfs=Vfs.from_dict(tree, OWNER))
     shell.user = OWNER
     return shell
+
+
+class ShellCase(unittest.TestCase):
+    """Базовый класс: свежая оболочка с тестовой VFS в каждом тесте."""
+
+    @cached_property
+    def shell(self):
+        """Оболочка, создаваемая при первом обращении в тесте."""
+        return make_shell()
+
+
+class TempDirCase(unittest.TestCase):
+    """Базовый класс: временный каталог, удаляемый после теста."""
+
+    @cached_property
+    def tmp(self):
+        """Временный каталог, создаваемый при первом обращении."""
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        return directory

@@ -3,6 +3,7 @@
 import os
 import tempfile
 import unittest
+from functools import cached_property
 
 from helpers import make_shell
 from emulator.vfs import (
@@ -17,9 +18,10 @@ VFS_DIR = os.path.join(ROOT, "tests", "vfs")
 class VfsTest(unittest.TestCase):
     """Проверки навигации по VFS."""
 
-    def setUp(self):
-        """Создаёт VFS для проверок."""
-        self.vfs = make_shell().vfs
+    @cached_property
+    def vfs(self):
+        """VFS для проверок."""
+        return make_shell().vfs
 
     def test_lookup_absolute_and_relative(self):
         """Абсолютные и относительные пути с . и .. ."""
