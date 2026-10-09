@@ -1,0 +1,60 @@
+# Этап 4: ls, cd, tail, tac - все режимы и ошибки.
+# Запускать с VFS: --vfs tests/vfs/deep
+
+# --- ls: без аргументов, -l, -a, -la, пути, несколько путей ---
+ls
+ls -l
+ls -a home/alex
+ls -la home/alex
+ls home/alex/notes.txt
+ls home tmp
+ls "home/alex/docs"
+
+# --- ls: ошибки ---
+ls nofolder
+ls -z
+ls --help
+
+# --- cd: абсолютные, относительные пути, .., без аргументов ---
+cd home/alex
+ls
+cd docs/old
+cd ../..
+cd /home/alex/docs/old/archive/2020
+ls
+cd
+cd /home/alex
+
+# --- cd: ошибки ---
+cd nofolder
+cd notes.txt
+cd docs old
+
+# --- tail: 10 строк по умолчанию, -n, -nN, -N, 0, несколько файлов ---
+tail log.txt
+tail -n 3 log.txt
+tail -n3 log.txt
+tail -2 log.txt
+tail -n 0 log.txt
+tail notes.txt
+tail -n 1 notes.txt log.txt
+
+# --- tail: ошибки ---
+tail
+tail missing.txt
+tail docs
+tail -n x log.txt
+tail -n
+tail -z log.txt
+
+# --- tac: один и несколько файлов ---
+tac notes.txt
+tac docs/plan.txt notes.txt
+
+# --- tac: ошибки ---
+tac
+tac missing.txt
+tac docs
+tac -x notes.txt
+
+exit
