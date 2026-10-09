@@ -43,7 +43,7 @@ class CliTest(unittest.TestCase):
         script = os.path.join(SCRIPTS, "test_stage2.txt")
         proc = run_emulator("--log", self.log, "--script", script)
         self.assertIn("$ cd /usr/local", proc.stdout)
-        self.assertIn("cd: args=['/usr/local']", proc.stdout)
+        self.assertIn("cd: /usr/local: No such file", proc.stdout)
         self.assertIn("foo: command not found", proc.stdout)
         self.assertTrue(os.path.exists(self.log))
 

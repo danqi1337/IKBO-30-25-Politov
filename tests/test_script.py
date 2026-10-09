@@ -15,17 +15,18 @@ class ScriptTest(unittest.TestCase):
         """Комментарии и пустые строки не выполняются и не печатаются."""
         shell = Shell()
         out = []
-        run_script(shell, ["# note", "", "  ", "cd /x  # tail"], out.append)
-        self.assertEqual(len(out), 2)
-        self.assertTrue(out[0].endswith("cd /x  # tail"))
-        self.assertEqual(out[1], "cd: args=['/x']")
+        run_script(shell, ["# note", "", "  ", "cd /home  # tail"],
+                   out.append)
+        self.assertEqual(len(out), 1)
+        self.assertTrue(out[0].endswith("cd /home  # tail"))
 
     def test_input_and_output_are_shown(self):
         """Выводятся и ввод (с приглашением), и результат."""
         shell = Shell()
         out = []
-        run_script(shell, ["ls a", "bogus"], out.append)
-        self.assertEqual(out[0], shell.prompt() + "ls a")
+        run_script(shell, ["ls home", "bogus"], out.append)
+        self.assertEqual(out[0], shell.prompt() + "ls home")
+        self.assertEqual(out[1], "user")
         self.assertEqual(out[2], shell.prompt() + "bogus")
         self.assertEqual(out[3], "bogus: command not found")
 
@@ -33,8 +34,8 @@ class ScriptTest(unittest.TestCase):
         """После ошибки скрипт продолжает работу."""
         shell = Shell()
         out = []
-        run_script(shell, ["bogus", "cd q"], out.append)
-        self.assertIn("cd: args=['q']", out)
+        run_script(shell, ["bogus", "cd home", "ls"], out.append)
+        self.assertEqual(out[-1], "user")
 
     def test_error_line_number_reported(self):
         """Для ошибочной строки сообщается её номер."""

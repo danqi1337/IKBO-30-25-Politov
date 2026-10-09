@@ -33,10 +33,10 @@ class LoggerTest(unittest.TestCase):
     def test_shell_logs_commands(self):
         """Оболочка пишет в журнал и успешные, и ошибочные вызовы."""
         shell = Shell(logger=CsvLogger(self.path))
-        shell.execute('ls "a b"')
+        shell.execute('ls "home"')
         shell.execute("foo")
         rows = read_rows(self.path)[1:]
-        self.assertEqual(rows[0][1:], [shell.user, "ls", '["a b"]', "ok"])
+        self.assertEqual(rows[0][1:], [shell.user, "ls", '["home"]', "ok"])
         self.assertEqual(rows[1][2], "foo")
         self.assertEqual(rows[1][4], "error")
 

@@ -13,16 +13,16 @@ class ShellTest(unittest.TestCase):
         """Создаёт оболочку."""
         self.shell = Shell()
 
-    def test_ls_stub_prints_name_and_args(self):
-        """ls выводит своё имя и аргументы."""
-        result = self.shell.execute('ls -l "a b"')
-        self.assertFalse(result.is_error)
-        self.assertEqual(result.output, "ls: args=['-l', 'a b']")
+    def test_quoted_argument_is_one_path(self):
+        """Аргумент в кавычках с пробелом — один путь."""
+        result = self.shell.execute('ls "a b"')
+        self.assertTrue(result.is_error)
+        self.assertIn("'a b'", result.output)
 
-    def test_cd_stub_prints_name_and_args(self):
-        """cd выводит своё имя и аргументы."""
-        result = self.shell.execute("cd /tmp")
-        self.assertEqual(result.output, "cd: args=['/tmp']")
+    def test_ls_lists_root(self):
+        """ls без аргументов показывает корень VFS."""
+        result = self.shell.execute("ls")
+        self.assertEqual(result.output, "home  readme.txt")
 
     def test_unknown_command(self):
         """Неизвестная команда — ошибка."""
