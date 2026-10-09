@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 
+from emulator.script import run_script
 from emulator.sysinfo import window_title
 
 FONT = ("Courier", 11)
@@ -92,6 +93,13 @@ class EmulatorApp:
         if self.history_pos < len(self.history):
             self.history_pos += 1
             self._show_history()
+
+    def start(self, banner, lines):
+        """Показывает баннер и выполняет стартовый скрипт lines."""
+        self.write(banner)
+        run_script(self.shell, lines, self.write)
+        self._refresh_prompt()
+        self.root.after_idle(self._finish_if_exited)
 
     def run(self):
         """Запускает цикл обработки событий окна."""

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from emulator.commands import COMMANDS
 from emulator.errors import CommandError
+from emulator.logger import STATUS_ERROR, STATUS_OK
 from emulator.parser import ParseError, parse
 from emulator.sysinfo import get_hostname, get_username
 
@@ -19,8 +20,9 @@ class Result:
 class Shell:
     """Состояние эмулятора и выполнение команд."""
 
-    def __init__(self):
-        """Создаёт оболочку для текущего пользователя ОС."""
+    def __init__(self, logger=None):
+        """Создаёт оболочку; logger (необязательно) ведёт журнал."""
+        self.logger = logger
         self.user = get_username()
         self.host = get_hostname()
         self.running = True
@@ -34,10 +36,14 @@ class Shell:
         try:
             tokens = parse(line)
         except ParseError as exc:
-            return Result(f"parse error: {exc}", True)
+            result = Result(f"parse error: {exc}", True)
+            self._log("", [line], result)
+            return result
         if not tokens:
             return Result()
-        return self._dispatch(tokens[0], tokens[1:])
+        result = self._dispatch(tokens[0], tokens[1:])
+        self._log(tokens[0], tokens[1:], result)
+        return result
 
     def interact(self, line, write):
         """Показывает ввод, выполняет его и показывает вывод."""
@@ -46,6 +52,13 @@ class Shell:
         if result.output:
             write(result.output)
         return result
+
+    def _log(self, name, args, result):
+        """Записывает вызов команды в журнал, если он включён."""
+        if self.logger is None:
+            return
+        status = STATUS_ERROR if result.is_error else STATUS_OK
+        self.logger.log(self.user, name, args, status)
 
     def _dispatch(self, name, args):
         """Вызывает обработчик команды name с аргументами args."""
