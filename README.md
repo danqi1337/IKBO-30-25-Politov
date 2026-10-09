@@ -7,7 +7,7 @@
 Заголовок окна формируется из реальных данных ОС:
 `Эмулятор - [username@hostname]`.
 
-Состояние проекта: **этап 4 (основные команды)**.
+Состояние проекта: **этап 5 (дополнительные команды) - работа завершена**.
 
 ## 2. Функции и настройки
 
@@ -81,6 +81,8 @@
 | `cd [путь]` | смена каталога; без аргумента - корень VFS |
 | `tail [-n N] файл...` | последние N (по умолчанию 10) строк файла |
 | `tac файл...` | строки файлов в обратном порядке |
+| `chown [-R] владелец путь...` | смена владельца файлов и каталогов |
+| `rmdir [-p] каталог...` | удаление пустых каталогов |
 | `vfsinfo` | служебная: источник VFS, число каталогов, файлов и байт |
 | `exit` | завершает работу эмулятора |
 
@@ -99,13 +101,40 @@
 **tac**: для нескольких файлов строки каждого выводятся в обратном
 порядке по очереди.
 
+**chown**: `chown bob file`, `chown -R bob dir` (рекурсивно). Имя
+владельца - буквы, цифры, `_`, `.`, `-`, первый символ не цифра; группы
+(`user:group`) не поддерживаются. Все пути проверяются до применения
+изменений, поэтому при ошибке ничего не меняется. Владелец виден в
+`ls -l`. По умолчанию владелец всех узлов - пользователь ОС.
+
+**rmdir**: удаляет только пустые каталоги; `-p` удаляет также пустых
+родителей (`rmdir -p a/b/c`) и останавливается на первом непустом.
+Нельзя удалить корень, текущий каталог и его предков
+(`Device or resource busy`). Изменения (chown, rmdir) выполняются
+только над деревом в памяти: каталог VFS на диске не меняется, при
+перезапуске эмулятора VFS загружается заново.
+
 Ошибки: `ls: cannot access 'x': No such file or directory`,
 `cd: x: Not a directory`, `tail: missing file operand`,
 `tail: invalid number of lines: 'x'`, `invalid option -- 'z'`,
+`chown: invalid user: '1bad'`,
+`rmdir: failed to remove 'x': Directory not empty`,
 `foo: command not found`, `cd: too many arguments`,
 `exit: too many arguments`.
 
 В окне работает история команд (стрелки вверх/вниз).
+
+### Структура репозитория
+
+```text
+src/emulator/   исходный код (parser, shell, commands, textcmds,
+                fscmds, vfs, config, logger, script, gui, console)
+tests/          модульные тесты (unittest), test_*.py
+tests/scripts/  стартовые скрипты эмулятора (test_stageN.txt)
+tests/os_scripts/  скрипты ОС (.sh и .bat) для проверки запуска
+tests/vfs/      примеры VFS: minimal, files, deep
+run.sh, run.bat, Makefile   запуск
+```
 
 ## 3. Сборка и тесты
 
@@ -132,13 +161,14 @@ make test                                         # запуск тестов
   варианты VFS;
 - `check_vfs_errors` - ошибки загрузки и VFS по умолчанию.
 
-Запуск стартового скрипта этапа 4: `tests/os_scripts/run_stage4.sh`
-(или `.bat`).
+Запуск стартовых скриптов этапов 4 и 5: `tests/os_scripts/run_stage4`
+и `run_stage5` (`.sh` или `.bat`). `run_stage5` дополнительно проверяет,
+что каталог VFS на диске после работы не изменился.
 
 Стартовые скрипты эмулятора лежат в `tests/scripts/`:
 `test_stage2.txt`, `test_stage3.txt` (все команды этапов 1-3, режимы и
-ошибки), `test_stage4.txt` (ls, cd, tail, tac; запускать с
-`--vfs tests/vfs/deep`), `vfs_info.txt`.
+ошибки), `test_stage4.txt` (ls, cd, tail, tac) и `test_stage5.txt` (chown,
+rmdir) - оба запускать с `--vfs tests/vfs/deep`; `vfs_info.txt`.
 
 ## 4. Примеры
 
@@ -160,6 +190,7 @@ root@vm:/$ ls -l
 d root  0 home
 - root 56 readme.txt
 d root  0 tmp
+d root  0 var
 root@vm:/$ cd home/alex
 root@vm:/home/alex$ tail -n 2 log.txt
 строка журнала 11
@@ -170,6 +201,20 @@ root@vm:/home/alex$ tac notes.txt
 Мои заметки
 root@vm:/home/alex$ cd notes.txt
 cd: notes.txt: Not a directory
+```
+
+Изменение VFS в памяти:
+
+```text
+root@vm:/$ chown -R bob home
+root@vm:/$ ls -l home
+d bob 0 alex
+root@vm:/$ rmdir tmp
+root@vm:/$ rmdir home
+rmdir: failed to remove 'home': Directory not empty
+root@vm:/$ rmdir -p var/cache/apt
+root@vm:/$ ls
+home  readme.txt
 ```
 
 Запуск со скриптом и журналом:
