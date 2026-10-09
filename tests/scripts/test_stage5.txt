@@ -1,0 +1,54 @@
+# Этап 5: chown и rmdir - изменения только в памяти.
+# Запускать с VFS: --vfs tests/vfs/deep
+
+# --- chown: файл, несколько путей, каталог без -R и с -R ---
+ls -l home/alex
+chown bob home/alex/notes.txt
+ls -l home/alex
+chown carol home/alex/docs
+chown -R dave home/alex/docs
+cd home/alex/docs
+ls -l
+ls -l old
+cd /
+chown eve readme.txt tmp
+ls -l
+chown -R frank /home
+ls -l home/alex
+
+# --- chown: ошибки (при ошибке ничего не меняется) ---
+chown
+chown bob
+chown bob missing
+chown 1bad readme.txt
+chown a:b readme.txt
+chown -x bob readme.txt
+chown gina readme.txt missing
+ls -l readme.txt
+
+# --- rmdir: ошибки ---
+rmdir
+rmdir home
+rmdir readme.txt
+rmdir missing
+rmdir ""
+rmdir /
+rmdir -x tmp
+cd tmp
+rmdir .
+rmdir /tmp
+cd /
+
+# --- rmdir: пустой каталог, несколько, -p ---
+rmdir tmp
+ls
+rmdir home/alex/empty home/alex/docs/old/archive/empty_archive
+ls home/alex
+ls home/alex/docs/old/archive
+rmdir -p var/cache/apt
+ls
+rmdir -p home/alex/docs/old/archive/2020
+
+# Каталог на диске при этом не изменился: после перезапуска всё на месте
+vfsinfo
+exit
