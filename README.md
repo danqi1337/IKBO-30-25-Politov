@@ -7,7 +7,7 @@
 Заголовок окна формируется из реальных данных ОС:
 `Эмулятор - [username@hostname]`.
 
-Состояние проекта: **этап 3 (VFS)**.
+Состояние проекта: **этап 4 (основные команды)**.
 
 ## 2. Функции и настройки
 
@@ -77,12 +77,32 @@
 
 | Команда | Описание |
 |---------|----------|
-| `ls [args...]` | заглушка: печатает имя и аргументы |
-| `cd [dir]` | заглушка: печатает имя и аргументы |
+| `ls [-l] [-a] [путь...]` | содержимое каталога или имя файла |
+| `cd [путь]` | смена каталога; без аргумента - корень VFS |
+| `tail [-n N] файл...` | последние N (по умолчанию 10) строк файла |
+| `tac файл...` | строки файлов в обратном порядке |
 | `vfsinfo` | служебная: источник VFS, число каталогов, файлов и байт |
 | `exit` | завершает работу эмулятора |
 
-Ошибки: `foo: command not found`, `cd: too many arguments`,
+**ls**: `-l` - подробный список (тип `d`/`-`, владелец, размер, имя),
+`-a` - показывать скрытые файлы (имена с `.`), флаги можно склеивать
+(`-la`). Для нескольких путей перед списком печатается `путь:`.
+Пути абсолютные и относительные, поддерживаются `.` и `..`.
+
+**cd**: `cd ..`, `cd /a/b`, `cd` (в корень). Приглашение показывает
+новый каталог.
+
+**tail**: число строк задаётся `-n N`, `-nN` или `-N`; для
+нескольких файлов выводятся заголовки `==> имя <==`. Чтение из stdin
+не поддерживается.
+
+**tac**: для нескольких файлов строки каждого выводятся в обратном
+порядке по очереди.
+
+Ошибки: `ls: cannot access 'x': No such file or directory`,
+`cd: x: Not a directory`, `tail: missing file operand`,
+`tail: invalid number of lines: 'x'`, `invalid option -- 'z'`,
+`foo: command not found`, `cd: too many arguments`,
 `exit: too many arguments`.
 
 В окне работает история команд (стрелки вверх/вниз).
@@ -112,9 +132,13 @@ make test                                         # запуск тестов
   варианты VFS;
 - `check_vfs_errors` - ошибки загрузки и VFS по умолчанию.
 
+Запуск стартового скрипта этапа 4: `tests/os_scripts/run_stage4.sh`
+(или `.bat`).
+
 Стартовые скрипты эмулятора лежат в `tests/scripts/`:
 `test_stage2.txt`, `test_stage3.txt` (все команды этапов 1-3, режимы и
-ошибки), `vfs_info.txt`.
+ошибки), `test_stage4.txt` (ls, cd, tail, tac; запускать с
+`--vfs tests/vfs/deep`), `vfs_info.txt`.
 
 ## 4. Примеры
 
@@ -127,6 +151,25 @@ root@vm:/$ cd "unclosed
 parse error: unterminated quote "
 root@vm:/$ foo --bar
 foo: command not found
+```
+
+Работа с VFS (`./run.sh --vfs tests/vfs/deep`):
+
+```text
+root@vm:/$ ls -l
+d root  0 home
+- root 56 readme.txt
+d root  0 tmp
+root@vm:/$ cd home/alex
+root@vm:/home/alex$ tail -n 2 log.txt
+строка журнала 11
+строка журнала 12
+root@vm:/home/alex$ tac notes.txt
+позвонить маме
+купить хлеб
+Мои заметки
+root@vm:/home/alex$ cd notes.txt
+cd: notes.txt: Not a directory
 ```
 
 Запуск со скриптом и журналом:
