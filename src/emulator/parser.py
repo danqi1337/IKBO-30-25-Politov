@@ -2,6 +2,7 @@
 
 QUOTES = "'\""
 ESCAPE = "\\"
+COMMENT = "#"
 DOUBLE_ESCAPABLE = '"\\'
 
 
@@ -39,6 +40,8 @@ class _Tokenizer:
         """Обрабатывает символ вне кавычек."""
         if char.isspace():
             self._flush()
+        elif char == COMMENT and not self.in_token:
+            self.pos = len(self.line)
         elif char in QUOTES:
             self.quote = char
             self.in_token = True
@@ -89,7 +92,8 @@ def parse(line):
     """Разбивает строку на слова: [команда, аргумент, ...].
 
     Аргументы в одинарных и двойных кавычках сохраняют пробелы,
-    пустые кавычки дают пустой аргумент. При ошибке выбрасывается
+    пустые кавычки дают пустой аргумент. Символ # в начале слова
+    начинает комментарий до конца строки. При ошибке выбрасывается
     ParseError.
     """
     return _Tokenizer(line).run()
