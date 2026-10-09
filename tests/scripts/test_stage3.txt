@@ -1,0 +1,23 @@
+# Этап 3: все реализованные команды, режимы и ошибки.
+# Запускается с любой VFS (--vfs) или без неё.
+
+# Служебная команда: сведения о загруженной VFS
+vfsinfo
+vfsinfo extra
+
+# Заглушки ls и cd (режимы: без аргументов, с путями, с кавычками)
+ls
+ls -l /home
+ls "my dir" 'a b'
+cd
+cd /home
+cd "dir with spaces"
+
+# Ошибки
+cd one two
+foo --bar
+cd "oops
+exit now
+
+# Завершение работы
+exit
