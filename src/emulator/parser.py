@@ -10,7 +10,7 @@ class ParseError(ValueError):
     """Ошибка разбора строки (например, незакрытая кавычка)."""
 
 
-class _Tokenizer:
+class Tokenizer:
     """Конечный автомат, разбивающий строку на слова."""
 
     def __init__(self, line):
@@ -96,4 +96,4 @@ def parse(line):
     начинает комментарий до конца строки. При ошибке выбрасывается
     ParseError.
     """
-    return _Tokenizer(line).run()
+    return Tokenizer(line).run()
