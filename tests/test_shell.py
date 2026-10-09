@@ -66,6 +66,16 @@ class ShellTest(unittest.TestCase):
         self.assertEqual(lines[0], self.shell.prompt() + "cd x")
         self.assertEqual(len(lines), 2)
 
+    def test_vfsinfo(self):
+        """Служебная команда vfsinfo показывает сведения о VFS."""
+        result = self.shell.execute("vfsinfo")
+        self.assertIn("directories: 2", result.output)
+        self.assertIn("files: 2", result.output)
+
+    def test_prompt_shows_vfs_path(self):
+        """Приглашение содержит текущий путь VFS."""
+        self.assertTrue(self.shell.prompt().endswith(":/$ "))
+
     def test_window_title_has_user_and_host(self):
         """Заголовок содержит user@host."""
         title = window_title()

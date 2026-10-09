@@ -1,4 +1,4 @@
-"""Команды эмулятора (этап 1: заглушки)."""
+"""Команды эмулятора (ls и cd пока заглушки)."""
 
 from emulator.errors import CommandError
 
@@ -28,8 +28,19 @@ def cmd_exit(shell, args):
     return ""
 
 
+def cmd_vfsinfo(shell, args):
+    """Служебная команда: сведения о загруженной VFS."""
+    if args:
+        raise CommandError("too many arguments")
+    dirs, files, size = shell.vfs.stats()
+    source = shell.vfs.source or "(только в памяти)"
+    return (f"source: {source}\ndirectories: {dirs}\n"
+            f"files: {files}\nbytes: {size}")
+
+
 COMMANDS = {
     "ls": cmd_ls,
     "cd": cmd_cd,
+    "vfsinfo": cmd_vfsinfo,
     "exit": cmd_exit,
 }

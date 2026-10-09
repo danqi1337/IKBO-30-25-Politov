@@ -7,6 +7,7 @@ from emulator.errors import CommandError
 from emulator.logger import STATUS_ERROR, STATUS_OK
 from emulator.parser import ParseError, parse
 from emulator.sysinfo import get_hostname, get_username
+from emulator.vfs import default_vfs
 
 
 @dataclass
@@ -20,16 +21,17 @@ class Result:
 class Shell:
     """Состояние эмулятора и выполнение команд."""
 
-    def __init__(self, logger=None):
-        """Создаёт оболочку; logger (необязательно) ведёт журнал."""
+    def __init__(self, vfs=None, logger=None):
+        """Создаёт оболочку с файловой системой vfs и журналом logger."""
         self.logger = logger
         self.user = get_username()
+        self.vfs = vfs if vfs is not None else default_vfs(self.user)
         self.host = get_hostname()
         self.running = True
 
     def prompt(self):
-        """Возвращает приглашение вида user@host:~$ ."""
-        return f"{self.user}@{self.host}:~$ "
+        """Возвращает приглашение вида user@host:/путь$ ."""
+        return f"{self.user}@{self.host}:{self.vfs.pwd()}$ "
 
     def execute(self, line):
         """Разбирает и выполняет строку, возвращает Result."""
