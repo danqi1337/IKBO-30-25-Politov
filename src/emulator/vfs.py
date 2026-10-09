@@ -5,6 +5,8 @@ import os
 ERR_NOT_FOUND = "No such file or directory"
 ERR_NOT_DIR = "Not a directory"
 ERR_IS_DIR = "Is a directory"
+ERR_NOT_EMPTY = "Directory not empty"
+ERR_BUSY = "Device or resource busy"
 PLACEHOLDER = ".gitkeep"
 
 DEFAULT_TREE = {
@@ -42,6 +44,11 @@ class Node:
         """Добавляет потомка в каталог."""
         child.parent = self
         self.children[child.name] = child
+
+    def remove(self):
+        """Отсоединяет узел от родительского каталога."""
+        del self.parent.children[self.name]
+        self.parent = None
 
 
 def _add_tree(parent, tree, owner):
@@ -119,6 +126,35 @@ class Vfs:
         if node.is_dir:
             raise VfsError(ERR_IS_DIR)
         return node.text()
+
+    def set_owner(self, node, owner, recursive):
+        """Назначает владельца узлу, при recursive - и всему поддереву."""
+        node.owner = owner
+        if recursive:
+            for child in node.children.values():
+                self.set_owner(child, owner, True)
+
+    def _holds_cwd(self, node):
+        """Истинно, если node - текущий каталог или его предок."""
+        current = self.cwd
+        while current is not None:
+            if current is node:
+                return True
+            current = current.parent
+        return False
+
+    def remove_dir(self, path):
+        """Удаляет пустой каталог path (только в памяти)."""
+        node = self.lookup(path)
+        if not node.is_dir:
+            raise VfsError(ERR_NOT_DIR)
+        if node.parent is None:
+            raise VfsError(ERR_BUSY)
+        if node.children:
+            raise VfsError(ERR_NOT_EMPTY)
+        if self._holds_cwd(node):
+            raise VfsError(ERR_BUSY)
+        node.remove()
 
     def stats(self):
         """Возвращает (каталогов без корня, файлов, байт)."""

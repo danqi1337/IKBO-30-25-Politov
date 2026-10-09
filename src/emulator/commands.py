@@ -1,6 +1,7 @@
-"""Основные команды эмулятора: ls, cd, exit, vfsinfo."""
+"""Команды эмулятора: ls, cd, exit, vfsinfo и реестр всех команд."""
 
 from emulator.errors import CommandError
+from emulator.fscmds import FS_COMMANDS
 from emulator.options import split_options
 from emulator.textcmds import TEXT_COMMANDS
 from emulator.vfs import VfsError
@@ -95,4 +96,5 @@ COMMANDS = {
     "vfsinfo": cmd_vfsinfo,
     "exit": cmd_exit,
     **TEXT_COMMANDS,
+    **FS_COMMANDS,
 }
